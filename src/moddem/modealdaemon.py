@@ -6,8 +6,8 @@ Created on 24 Apr 2020
 import sys
 
 
-from modealgame import MDGameState
-from modealdipc import MDGameIPC
+from moddem.modealgame import MDGameState
+from moddem.modealdipc import MDGameIPC
 import os
 
 # make sure at this point there is a
@@ -15,6 +15,7 @@ import os
 
 h = 'localhost'
 p = 24571
+b = 'serve_dir'
 
 if 'hypolydian' in sys.argv:
     h = 'hypolydian'
@@ -24,12 +25,14 @@ elif 'ionian' in sys.argv:
 
 if len(sys.argv) - 1 > 1:
     p = int(sys.argv[2])
+    b = sys.argv[3]
+    
     
 mdstat = MDGameState()
-ipc = MDGameIPC(mdstat, h, p)
+ipc = MDGameIPC(mdstat, h, p, b)
 
 try:
-    print("Starting daemon...", h, p)
+    print("Starting daemon...", h, p, b)
     ipc.daemon_deploy()      
   
 except KeyboardInterrupt:

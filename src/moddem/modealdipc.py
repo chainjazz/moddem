@@ -10,15 +10,15 @@ import ssl
 import os
 import xml.etree.ElementTree as ET
 
-from modealhttp import MDHttp
+from moddem.modealhttp import MDHttp
 import struct
 
 class MDGameIPC:
-    def __init__(self, gamestate, hname='localhost', hport=24571):
+    def __init__(self, gamestate, hname='ionian', hport=24571, baseuri=''):
         self.sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         self.sslcontext.load_cert_chain(
-            certfile="../../../../cert/productionchain.pem", 
-            keyfile="../../../../cert/sub-ca/private/sub-ca_server.key")        
+            certfile="../../productionchain.pem", 
+            keyfile="../../sub-ca_server.key")        
         self.sslcontext.verify_mode = ssl.CERT_NONE
         
         self.sslcontext.options |= ssl.OP_NO_TLSv1
@@ -37,10 +37,12 @@ class MDGameIPC:
         self.http = MDHttp( 
             # CORS whitelist (incoming)
             [
+                hname.encode(),
                 b'192.168.0.35', 
                 b'batenga.ddns.net',
                 b'hypolydian'
-             ]
+             ],
+            staticbaseuri=baseuri
             )
          
         
@@ -62,12 +64,14 @@ class MDGameIPC:
     def read(self, conn, mask):
         if self.http.h2 == True: # h2         
             data = conn.recv(struct.calcsize(">LBL"))
-            data = conn.recv(self.http.h2_frame_unwrap(data))
+            
+            if len(data) > 0:
+                data = conn.recv(self.http.h2_frame_unwrap(data))
             (udata,) = struct.unpack(">" + str(len(data)) + "s", data)
             print(udata) #
             self.http.parse_request(udata)
             
-        elif self.http.h2 == False:# should actually stop, because we don't support http11 (test case)
+        elif self.http.h2 == False:
             data = conn.recv(24)  # preface h2
             
             if data == self.http.H2_PREFACE: # h2 or http11

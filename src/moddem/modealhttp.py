@@ -9,7 +9,7 @@ from _collections_abc import list_iterator
 import struct
 
 class MDHttp:
-    def __init__(self, proxylist, staticbaseuri='../../../public_html'):
+    def __init__(self, proxylist, staticbaseuri=''):
         self.request = b''
         self.request_method = b'' # for extending http with new methods/actions
         self.request_resource = b''
@@ -34,9 +34,9 @@ class MDHttp:
             b'xsl'  : b'text/xsl'            
             }
         self.aliases = {
-            'lib'   : '../../../lib',
-            'xmldb' : '../../../xmldb',
-            'res'   : '../../../res'
+            'lib'   : self.static_base_uri + '../www/www-git/Sites/lib',
+            'xmldb' : self.static_base_uri + '../www/www-git/Sites/xmldb',
+            'res'   : self.static_base_uri + '../www/www-git/Sites/res'
             }
         self.frame_types = {
             'DATA'      : 0x0,
@@ -82,7 +82,7 @@ class MDHttp:
         self.request_method = self.getheader(b':method')
         self.request_resource = self.getheader(b':path')
         self.request_protocol = self.getheader(b':scheme') 
-       
+        print(self.request_method, "--", self.request_resource, "--", self.request_protocol)
         # TODO: if method POST, retrieve payload
         
     def retreive_static(self):
